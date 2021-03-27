@@ -95,9 +95,7 @@ def evaluate(exp, env=None):
         else:
             proc = evaluate(op, env=env)
             values = [evaluate(e, env=env) for e in args]
-            sigma = {'type' : 'proc',
-                     #TODO: put any other stuff you need here
-                     }
+            sigma = {'type' : 'proc',}
             return proc, values, sigma
 
     elif type(exp) is str:
