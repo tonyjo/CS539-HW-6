@@ -187,6 +187,7 @@ if __name__ == '__main__':
                 EX2 = 0.0
                 for p in particles:
                     EX2 += (p[0].item())**2
+                EX2 = EX2/len(particles)
                 var = EX2 - (EX**2)
                 print(f"Posterior Variance for {n_particles} particles: {var}")
                 print("--------------------------------")
@@ -199,46 +200,81 @@ if __name__ == '__main__':
         #-----------------------------------------------------------------------
         # 3
         elif i == 3:
-            print('Running HOPPL Evaluation for Task number {}:'.format(str(i)))
-            ast_path = f'./jsons/{i}.json'
-            with open(ast_path) as json_file:
-                ast = json.load(json_file)
-            ret, sig = evaluate(exp=ast)
+            for n_particles in n_particles_runs:
+                begin = time.time()
+                logZ, particles = SMC(n_particles, exp)
+                end = time.time()
 
-            T = 25000
-            samples = []
-            stream  = get_stream(ast)
-            begin = time.time()
-            for k in range(T):
-                if k == 0:
-                    samples, sig  = next(stream)
-                    samples = samples.unsqueeze(0)
-                    # print(samples.shape)
-                else:
-                    sample, sig   = next(stream)
-                    sample  = sample.unsqueeze(0)
-                    samples = torch.cat((samples, sample), dim=0)
-                if k%1000 == 0:
-                    print(f'Progress: {k}/{T}')
-            end = time.time()
-            # print(samples)
-            print("Posterior Mean: \n", torch.mean(samples, dim=0))
-            print("\n")
+                # Time
+                hours, rem = divmod(end-begin, 3600)
+                minutes, seconds = divmod(rem, 60)
+                print(f"Wall-clock Runtime for Particle Size {n_particles} (HR:MIN): ")
+                print("{:0>2}:{:0>2}".format(int(hours), int(minutes)))
+                print("--------------------------------")
+                print("\n")
 
-            var = torch.var(samples, dim=0, unbiased=True)
-            print("Posterior Variance: \n", var)
-            print("--------------------------------")
-            print("\n")
+                k = 0
+                samples = []
+                for p in particles:
+                    if k == 0:
+                        samples, sig  = next(stream)
+                        samples = samples.unsqueeze(0)
+                        # print(samples.shape)
+                    else:
+                        sample, sig   = next(stream)
+                        sample  = sample.unsqueeze(0)
+                        samples = torch.cat((samples, sample), dim=0)
+                    if k%1000 == 0:
+                        print(f'Progress: {k}/{len(particles)}')
+                    k += 1
+                print("Posterior Mean: \n", torch.mean(samples, dim=0))
+                print("\n")
 
-            hours, rem = divmod(end-begin, 3600)
-            minutes, seconds = divmod(rem, 60)
-            print("Wall-clock Runtime (HR:MIN): ")
-            print("{:0>2}:{:0>2}".format(int(hours),int(minutes)))
-            print("--------------------------------")
-            print("\n")
+                var = torch.var(samples, dim=0, unbiased=True)
+                print(f"Posterior Variance for {n_particles} particles: {var}")
+                print("--------------------------------")
+                print("\n")
 
-            fig, axs = plt.subplots(3,6)
-            png = [axs[i//6,i%6].hist([a[i] for a in samples]) for i in range(17)]
-            plt.tight_layout()
-            plt.savefig(f'plots/P_3.png')
+                # Plot
+                fig, axs = plt.subplots(3,6)
+                png = [axs[i//6,i%6].hist([a[i] for a in samples]) for i in range(17)]
+                plt.tight_layout()
+                plt.savefig(f'plots/P_{i}_{n_particles}.png')
+        #-----------------------------------------------------------------------
+        # 4
+        elif i == 4:
+            for n_particles in n_particles_runs:
+                begin = time.time()
+                logZ, particles = SMC(n_particles, exp)
+                end = time.time()
+
+                # Time
+                hours, rem = divmod(end-begin, 3600)
+                minutes, seconds = divmod(rem, 60)
+                print(f"Wall-clock Runtime for Particle Size {n_particles} (HR:MIN): ")
+                print("{:0>2}:{:0>2}".format(int(hours), int(minutes)))
+                print("--------------------------------")
+                print("\n")
+
+                # Mean:
+                EX = 0.0
+                for p in particles:
+                    EX += p[0].item()
+                EX = EX/len(particles)
+                print(f"Posterior mean for {n_particles} particles: {EX}")
+                print("\n")
+
+                EX2 = 0.0
+                for p in particles:
+                    EX2 += (p[0].item())**2
+                EX2 = EX2/len(particles)
+                var = EX2 - (EX**2)
+                print(f"Posterior Variance for {n_particles} particles: {var}")
+                print("--------------------------------")
+                print("\n")
+
+                # Plot
+                plt.hist([p[0].item() for p in particles])
+                plt.savefig(f'plots/P_{i}_{n_particles}.png')
+                plt.clf()
         #-----------------------------------------------------------------------

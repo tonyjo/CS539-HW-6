@@ -59,7 +59,6 @@ def standard_env():
     return env
 
 
-
 def evaluate(exp, env=None):
     if env is None:
         env = standard_env()
@@ -129,6 +128,9 @@ def sample_from_prior(exp):
 def get_stream(exp):
     while True:
         yield sample_from_prior(exp)
+
+
+
 
 def run_deterministic_tests(use_cache=True, cache='jsons/tests/'):
 
