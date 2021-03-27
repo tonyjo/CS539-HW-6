@@ -112,8 +112,8 @@ if __name__ == '__main__':
     cache = './jsons'
     use_cache = True
 
-    for i in range(1,2):
-    #for i in range(1,5):
+    #for i in range(4,5):
+    for i in range(2,5):
         if use_cache:
             with open(f'{cache}/{i}.json','r') as f:
                 exp = json.load(f)
@@ -130,10 +130,11 @@ if __name__ == '__main__':
         # res = cont(*args)
         # print(res)
 
-        n_particles_runs = [1, 10, 100, 1000, 10000, 100000]
-        #n_particles_runs = [1]
+        print(f'Running SMC for Task number {i}: ')
+        print('\n')
+        n_particles_runs = [1, 10, 100, 1000, 10000]
         #-----------------------------------------------------------------------
-        # 3
+        # 1
         if i == 1:
             for n_particles in n_particles_runs:
                 begin = time.time()
@@ -217,16 +218,16 @@ if __name__ == '__main__':
                 samples = []
                 for p in particles:
                     if k == 0:
-                        samples, sig  = next(stream)
-                        samples = samples.unsqueeze(0)
+                        samples = (p[0]).unsqueeze(0)
                         # print(samples.shape)
                     else:
-                        sample, sig   = next(stream)
-                        sample  = sample.unsqueeze(0)
+                        sample  = (p[0]).unsqueeze(0)
                         samples = torch.cat((samples, sample), dim=0)
                     if k%1000 == 0:
                         print(f'Progress: {k}/{len(particles)}')
                     k += 1
+                samples = samples.type(torch.FloatTensor)
+                print(samples)
                 print("Posterior Mean: \n", torch.mean(samples, dim=0))
                 print("\n")
 
@@ -237,7 +238,7 @@ if __name__ == '__main__':
 
                 # Plot
                 fig, axs = plt.subplots(3,6)
-                png = [axs[i//6,i%6].hist([a[i] for a in samples]) for i in range(17)]
+                png = [axs[i//6,i%6].hist([a[i].item() for a in samples]) for i in range(17)]
                 plt.tight_layout()
                 plt.savefig(f'plots/P_{i}_{n_particles}.png')
         #-----------------------------------------------------------------------
