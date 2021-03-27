@@ -4,8 +4,6 @@ import numpy as np
 import json
 import sys
 
-
-
 def get_IS_sample(exp):
     #init calc:
     output = lambda x: x
@@ -35,6 +33,6 @@ if __name__ == '__main__':
         log_norm_weights = log_weights - log_Z
         weights = torch.exp(log_norm_weights).detach().numpy()
         weighted_samples = (torch.exp(log_norm_weights).reshape((-1,1))*values.float()).detach().numpy()
-    
-        print('covariance: ', np.cov(values.float().detach().numpy(),rowvar=False, aweights=weights))    
+
+        print('covariance: ', np.cov(values.float().detach().numpy(),rowvar=False, aweights=weights))
         print('posterior mean:', weighted_samples.mean(axis=0))

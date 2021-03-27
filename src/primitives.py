@@ -121,7 +121,7 @@ def put(alpha, data, element, value, k): #vector, index, value
         newhashmap[key] = value
         return k(newhashmap)
     else:
-        newvector = data.clone() 
+        newvector = data.clone()
         newvector[int(element)] = value
         return k(newvector)
 
@@ -132,13 +132,13 @@ def remove(alpha, data, element, k):
             key = element.item()
         elif type(element) is str:
             key = element
-        _ = newhashmap.pop(key)        
+        _ = newhashmap.pop(key)
         return k(newhashmap)
     else:
         idx = int(element)
         newvector = torch.cat([data[0:idx],data[idx+1:]],dim=0)
         return k(newvector)
-    
+
 def append(alpha, data, value, k):
     return k(torch.cat([data,torch.tensor([value])], dim=0))
 
@@ -160,7 +160,7 @@ def mat_transpose(alpha, arg, k):
 
 def mat_mul(alpha, arg0, arg1, k):
     return k(torch.matmul(arg0,arg1))
-    
+
 def mat_repmat(alpha, mat, dim, n, k):
     shape = [1,1]
     shape[int(dim)] = int(n)
@@ -182,7 +182,7 @@ env = {
            'uniform-continuous': Uniform,
            'gamma': Gamma,
            'flip': Bernoulli,
-           
+
            # #math
            'sqrt': sqrt,
            'exp': exp,
@@ -196,7 +196,7 @@ env = {
            '-': sub,
            '*': mul,
            '/': div,
-           
+
            # #
            '<' : lt,
            '>' : gt,
@@ -222,5 +222,3 @@ env = {
 
            'push-address' : push_addr,
            }
-
-
